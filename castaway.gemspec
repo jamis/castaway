@@ -18,8 +18,8 @@ Gem::Specification.new do |s|
   s.files = Dir['{bin,lib}/**/*', 'MIT-LICENSE', 'README.md']
   s.executables << 'castaway'
 
-  s.add_dependency 'gli', '~> 2.14.0'
-  s.add_dependency 'mini_magick', '~> 4.6.0'
-  s.add_dependency 'ruby-progressbar', '~> 1.8.1'
-  s.add_dependency 'chaussettes', '~> 1.0.0'
+  s.add_dependency 'gli', '~> 2.14'
+  s.add_dependency 'mini_magick', '~> 4.6'
+  s.add_dependency 'ruby-progressbar', '~> 1.8'
+  s.add_dependency 'chaussettes', '~> 1.0'
 end
