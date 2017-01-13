@@ -7,14 +7,14 @@ does what you need, but that one feature it's missing is a deal-breaker?
 _Castaway_ to the rescue! Write your scripts, mix your audio, and render your
 video, all via a simple-yet-powerful DSL.
 
-Want to rerender your video with a different resolution or framerate? No
+Want to re-render your video with a different resolution or frame rate? No
 problem--just run the script with different parameters.
 
 Is that arrow pointing at the wrong point, or does that animation start at the
 wrong time? Easy-peasy. Change the position or timing in your script, and rerun
 it.
 
-Screencasting just got a whole lot easier.
+Screen-casting just got a whole lot easier.
 
 
 ## Installation
