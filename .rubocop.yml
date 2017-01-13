@@ -1,0 +1,72 @@
+# I personally find arrays easier to read with space padding them on either side.
+Style/SpaceInsideBrackets:
+  Enabled: false
+
+# As with space inside brackets, the space on the front/back can make the syntax
+# easier to parse visually.
+Style/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
+
+# I agree that is_* can be shortened, but has_* does not have the same semantics.
+Style/PredicateName:
+  NamePrefixBlacklist:
+    - is_
+
+# Nested modules get lost in noise without whitespace to separate them. Also,
+# multiple `end` keywords are hard to tell apart without whitespace to show
+# relative scoping.
+Style/EmptyLinesAroundModuleBody:
+  Enabled: false
+
+# Empty `when` clauses can be useful, to indicate conditions that are possible,
+# but which I am explicitly NOT doing anything about. (If rubocop treated
+# comments as `when` bodies I'd leave this enabled, as I always leave a comment
+# in this case.)
+Lint/EmptyWhen:
+  Enabled: false
+
+# I find orphaned parentheses ugly. I prefer to put the final paren on the
+# same line as the last argument in most cases.
+Style/MultilineMethodCallBraceLayout:
+  EnforcedStyle: same_line
+
+# I'm a believer in trailing dots on multiline method calls chains.
+Style/DotPosition:
+  EnforcedStyle: trailing
+
+# This one is just plain silly. Why are acc/elem better parameter names than
+# something more context-specific? Pfft.
+Style/SingleLineBlockParams:
+  Enabled: false
+
+# I like this one in theory, but in practice it gets burdensome to try and
+# document every class, while in "explore" mode.
+Style/Documentation:
+  Enabled: false
+
+# Another one I like in theory, but in practice I find I have to disable it
+# too often.
+Metrics/AbcSize:
+  Enabled: false
+
+# I find struct inheritance to be a semantically-clear way to indicate the
+# purpose of a class, when it is a struct that contains additional behavior.
+Style/StructInheritance:
+  Enabled: false
+
+# I'm sorry. This one is just plain stupid, too. Parallel assignment is one of
+# Ruby's strengths. How about we just embrace those?
+Style/ParallelAssignment:
+  Enabled: false
+
+# Really? REALLY?! Someone actually had an opinion about this and decided it
+# should be mandated somewhere? Whatevs.
+Style/OpMethod:
+  Enabled: false
+
+# This one, I mostly agree with. But letting Rubocop try to enforce this has led
+# multiple cases of code becoming HARDER to read as result of avoiding the
+# $* variables. Better to just disable it, and be smart about avoiding $* vars
+# when it make sense.
+Style/PerlBackrefs:
+  Enabled: false

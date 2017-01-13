@@ -1,0 +1,5 @@
+#!/bin/sh ruby
+
+require 'castaway/cli/main'
+
+Castaway::CLI::Main.run(ARGV)
