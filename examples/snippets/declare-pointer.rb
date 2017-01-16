@@ -1,0 +1,9 @@
+# somewhere near the top of your Castaway script...
+
+pointer 'arrow.png', hotspot: [152, 12], scale: 0.1
+
+scene '...' do
+  # ...
+end
+
+# ...
