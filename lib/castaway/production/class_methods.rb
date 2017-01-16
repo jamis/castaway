@@ -1,6 +1,10 @@
+require 'castaway/times'
+
 module Castaway
   class Production
     module ClassMethods
+      include Castaway::Times
+
       def scenes
         @scenes ||= []
       end
@@ -58,6 +62,10 @@ module Castaway
         scene(nil) { start finish }
       end
 
+      def time(value)
+        _parse_time(value)
+      end
+
       def pointer(path, options = {})
         id = options[:id] || :default
         pointers[id] = [path, options]
@@ -75,6 +83,10 @@ module Castaway
         Class.new(self) do
           class_eval File.read(file), file
         end
+      rescue Exception => e
+        puts "#{e.class} (#{e.message})"
+        puts e.backtrace
+        abort
       end
     end
   end

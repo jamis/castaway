@@ -2,6 +2,7 @@ require 'castaway/element/matte'
 require 'castaway/element/still'
 require 'castaway/element/pointer'
 require 'castaway/element/text'
+require 'castaway/relative_to'
 require 'castaway/times'
 
 module Castaway
@@ -28,6 +29,14 @@ module Castaway
     def start(value = nil)
       return @start unless value
       @start = _parse_time(value)
+    end
+
+    def time(value)
+      _parse_time(value)
+    end
+
+    def relative_to_image(name)
+      RelativeTo.new(name, production)
     end
 
     def script(*args)

@@ -18,10 +18,10 @@ module Castaway
         command.flag %i(f fps), default_value: 29.97, type: Float
 
         command.desc 'The frame from which to start producing frames'
-        command.flag %i(start-frame), default_value: 0
+        command.flag %i(start-frame), default_value: 0, type: Integer
 
         command.desc 'The frame after which to stop producing frames'
-        command.flag %i(end-frame)
+        command.flag %i(end-frame), type: Integer
 
         command.desc 'The scene from which to start producing frames'
         command.flag %i(start-scene)
@@ -73,6 +73,10 @@ module Castaway
         end
 
         production.produce(range)
+      rescue Exception => e
+        puts "#{e.class} (#{e.message})"
+        puts e.backtrace
+        abort
       end
     end
   end

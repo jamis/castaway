@@ -86,6 +86,7 @@ module Castaway
       ffmpeg << '-crf' << 23 << '-pix_fmt' << 'yuv420p' << '-acodec' << 'aac'
       ffmpeg << deliverable
 
+      puts ffmpeg.to_s
       system(ffmpeg.to_s)
     end
 

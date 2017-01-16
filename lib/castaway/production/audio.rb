@@ -9,11 +9,22 @@ module Castaway
         return nil unless block
 
         _next_filename('.aiff').tap do |filename|
+          real_filename = filename
+          filename = range.truncated? ? _next_filename('.aiff') : real_filename
+
           Chaussettes::Clip.new do |clip|
             instance_exec(clip, &block)
-            clip.chain.trim range.start_time, range.end_time - range.start_time
             clip.out(filename)
             clip.run
+          end
+
+          if range.truncated?
+            Chaussettes::Clip.new do |clip|
+              clip.in(filename)
+              clip.chain.trim range.start_time, range.end_time - range.start_time
+              clip.out(real_filename)
+              clip.run
+            end
           end
         end
       end

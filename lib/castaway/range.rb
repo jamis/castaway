@@ -34,6 +34,10 @@ module Castaway
       self.end_time = production.duration
     end
 
+    def truncated?
+      start_frame > 0 || end_time < @production.duration
+    end
+
     def start_time=(t)
       @start_frame = (_parse_time(t) * @production.fps).floor
     end

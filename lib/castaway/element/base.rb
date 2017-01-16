@@ -109,6 +109,34 @@ module Castaway
         self
       end
 
+      def gravity(specification)
+        s = size
+
+        left = 0
+        hcenter = (production.resolution.width - s.width) / 2.0
+        right = production.resolution.width - s.width
+
+        top = 0
+        vcenter = (production.resolution.height - s.height) / 2.0
+        bottom = production.resolution.height - s.height
+
+        x, y = case specification
+          when :northwest then [left,    top    ]
+          when :north     then [hcenter, top    ]
+          when :northeast then [right,   top    ]
+          when :west      then [left,    vcenter]
+          when :center    then [hcenter, vcenter]
+          when :east      then [right,   vcenter]
+          when :southwest then [left,    bottom ]
+          when :south     then [hcenter, bottom ]
+          when :southeast then [right,   bottom ]
+          else
+            raise ArgumentError, "invalid gravity #{specification.inspect}"
+          end
+
+        at(x, y)
+      end
+
       def size(*args)
         if args.empty?
           @size
