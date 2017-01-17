@@ -38,6 +38,8 @@ And you're good to go!
 
 ## Usage
 
+_Watch a four-minute introduction to Castaway--created with Castaway!--on YouTube, here: [https://www.youtube.com/watch?v=F5ShAdLvVIk](https://www.youtube.com/watch?v=F5ShAdLvVIk) ._
+
 Scripts are written in a DSL in Ruby. You declare scenes and sound clips,
 and describe what comprises those scenes and sound clips. Here's a simple
 example:

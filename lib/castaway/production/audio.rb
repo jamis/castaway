@@ -4,31 +4,10 @@ module Castaway
   class Production
     module Audio
 
-      def _produce_soundtrack(range)
-        block = self.class.soundtrack
-        return nil unless block
-
-        _next_filename('.aiff').tap do |filename|
-          real_filename = filename
-          filename = range.truncated? ? _next_filename('.aiff') : real_filename
-
-          Chaussettes::Clip.new do |clip|
-            instance_exec(clip, &block)
-            clip.out(filename)
-            clip.run
-          end
-
-          if range.truncated?
-            Chaussettes::Clip.new do |clip|
-              clip.in(filename)
-              clip.chain.trim range.start_time, range.end_time - range.start_time
-              clip.out(real_filename)
-              clip.run
-            end
-          end
-        end
-      end
-
+      # Returns the filename associated with the soundclip with the given id.
+      # If the soundclip was declared with a block, the block will be evaluated
+      # with a new `Chaussettes::Clip` instance, and the a temporary filename
+      # containing the resulting audio will be returned,
       def soundclip(id)
         @soundclips ||= {}
         @soundclips[id] ||= begin
@@ -52,6 +31,15 @@ module Castaway
         end
       end
 
+      # Ducks the `basis` audio beneath the given `overlays`. Each overlay
+      # should be a hash containing at least a `:clip` key, corresponding to
+      # a filename to be used for the overlay clip. Additional keys are:
+      #
+      # * `:at` (default 0, where in `basis` the overlay should be applied)
+      # * `:adjust` (default 0.5, how much the basis audio should be reduced)
+      # * `:speed` (default 0.5, how many seconds the fade in/out should take)
+      #
+      # Returns a new filename representing the results of the duck operation.
       def duck(basis, *overlays)
         _next_filename('.aiff').tap do |result|
           Chaussettes::Clip.new do |clip|
@@ -141,6 +129,31 @@ module Castaway
         end
 
         1
+      end
+
+      def _produce_soundtrack(range)
+        block = self.class.soundtrack
+        return nil unless block
+
+        _next_filename('.aiff').tap do |filename|
+          real_filename = filename
+          filename = range.truncated? ? _next_filename('.aiff') : real_filename
+
+          Chaussettes::Clip.new do |clip|
+            instance_exec(clip, &block)
+            clip.out(filename)
+            clip.run
+          end
+
+          if range.truncated?
+            Chaussettes::Clip.new do |clip|
+              clip.in(filename)
+              clip.chain.trim range.start_time, range.end_time - range.start_time
+              clip.out(real_filename)
+              clip.run
+            end
+          end
+        end
       end
 
     end
