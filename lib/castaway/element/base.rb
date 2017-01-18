@@ -1,4 +1,5 @@
 require 'castaway/animation'
+require 'castaway/delta'
 require 'castaway/effect'
 require 'castaway/embedded_audio'
 require 'castaway/point'
@@ -7,24 +8,18 @@ module Castaway
   module Element
 
     class Base
-      attr_reader :production, :scene
-      attr_reader :position, :size
-
-      # reevaluated at each render, represents the value of the attributes at
-      # the current point in time.
-      attr_reader :attributes
-
-      class Attribute < Struct.new(:_initial, :fn)
-        def initial
-          if _initial.respond_to?(:call)
-            _initial.call
-          else
-            _initial
-          end
-        end
-
-        def [](memo, value)
-          fn[memo, value]
+      def self.declarative_accessor(*names)
+        names.each do |name|
+          class_eval <<-RUBY, __FILE__, __LINE__+1
+            def #{name}(arg = nil)
+              if arg.nil?
+                @#{name}
+              else
+                @#{name} = _argument_to_delta(arg)
+                self
+              end
+            end
+          RUBY
         end
       end
 
@@ -32,7 +27,14 @@ module Castaway
         def to_f
           owner.duration - amount
         end
+
+        alias reify to_f
       end
+
+      attr_reader :production, :scene
+      attr_reader :position, :size
+
+      declarative_accessor :scale, :rotate, :alpha
 
       def initialize(production, scene)
         @production = production
@@ -40,24 +42,17 @@ module Castaway
 
         @enter = 0
         @exit = scene.duration
-        @position = Castaway::Point.new(0, 0)
         @size = production.resolution
 
-        @animations = Hash.new { |h, k| h[k] = [] }
-        @attribute_defs = {}
-
-        attribute(:alpha, 1.0) { |memo, value| memo * value }
-        attribute(:position, -> { position }) { |memo, value| memo + value }
-        attribute(:size, -> { @size }) { |memo, value| memo * value }
+        @position = Castaway::Delta[Castaway::Point.new(0, 0)]
+        @scale    = Castaway::Delta[1]
+        @rotate   = Castaway::Delta[0]
+        @alpha    = Castaway::Delta[1]
       end
 
       # `t` is relative to the beginning of the production
       def alive_at?(t)
         t.between?(t1, t2)
-      end
-
-      def attribute(name, initial, fn = nil, &block)
-        @attribute_defs[name] = Attribute.new(initial, fn || block)
       end
 
       # Return start time for this element, relative to the beginning of the
@@ -100,14 +95,32 @@ module Castaway
 
       def at(*args)
         if args.length == 1
-          @position = args.first
+          _at_arity1(args.first)
         elsif args.length == 2
-          @position = Castaway::Point.new(args[0], args[1])
+          _at_arity2(*args)
         else
           raise ArgumentError, 'expected 1 or 2 arguments to #at'
         end
 
         self
+      end
+
+      def _argument_to_delta(arg)
+        if arg.is_a?(Hash)
+          Castaway::Delta.new(arg)
+        elsif arg.is_a?(Castaway::Delta)
+          arg
+        else
+          Castaway::Delta[arg]
+        end
+      end
+
+      def _at_arity1(arg)
+        @position = _argument_to_delta(arg)
+      end
+
+      def _at_arity2(x, y)
+        @position = Castaway::Delta[Castaway::Point.new(x, y)]
       end
 
       def gravity(specification)
@@ -156,16 +169,6 @@ module Castaway
         end
       end
 
-      def scale(scale)
-        @scale = scale
-        self
-      end
-
-      def rotate(angle)
-        @angle = angle
-        self
-      end
-
       def in(type, options = {})
         effect(:"#{type}_in", options)
       end
@@ -179,27 +182,9 @@ module Castaway
         self
       end
 
-      def animate(attribute, options = {})
-        options = options.dup
-        %i( from to ).each { |a| options[a] = _convert(options[a]) }
-        @animations[attribute] << Animation.from_options(options)
-        self
-      end
-
       def path(points)
-        current = @position # not #position, which may give us a translated point
-        prior_t = 0
-        p0 = Castaway::Point.new(0, 0)
-
-        points.keys.sort.each do |time|
-          delta = points[time] - current
-
-          animate(:position, type: :linear, from: prior_t, to: time,
-                             initial: p0, final: delta)
-
-          current = points[time]
-          prior_t = time
-        end
+        warn '#path is deprecated -- use #at with Hash instead'
+        at(points)
       end
 
       def play(sound, after: 0, duration: nil)
@@ -215,31 +200,34 @@ module Castaway
       # `t` is the global time value, relative to the beginning of the
       # production.
       def render_at(t, canvas)
-        _evaluate_attributes!(t)
+        relative_t = t - t1
 
-        alpha    = attributes[:alpha] || 1.0
-        size     = attributes[:size] || production.resolution
-        position = attributes[:position] || Castaway::Point.new(0, 0)
+        alpha = self.alpha[relative_t]
+        scale = self.scale[relative_t]
 
-        return if alpha <= 0.0 || size.empty?
+        return if alpha <= 0.0 || scale.abs <= 0.001
+
+        size     = self.size
+        position = self.position[relative_t]
+        rotate   = self.rotate[relative_t]
 
         canvas.stack do |stack|
-          _prepare_canvas(t, stack)
+          _prepare_canvas(relative_t, stack)
           stack.geometry size.to_geometry
-          _transform(stack)
+          _transform(stack, scale, rotate)
           stack.geometry position.to_geometry unless position.zero?
         end
 
         _composite(canvas, alpha)
       end
 
-      def _transform(canvas)
-        return unless @scale || @angle
+      def _transform(canvas, scale, angle)
+        return unless scale != 1 || angle != 0
 
         canvas.virtual_pixel 'transparent'
 
-        distort = "#{@scale || '1'} #{@angle || '0'}"
-        canvas.distort.+('ScaleRotateTranslate', distort.strip)
+        distort = "#{scale} #{angle}"
+        canvas.distort.+('ScaleRotateTranslate', distort)
       end
 
       def _composite(canvas, alpha)
@@ -251,27 +239,6 @@ module Castaway
         end
 
         canvas.composite
-      end
-
-      def _evaluate_attributes!(t)
-        @attributes = @attribute_defs.keys.each.with_object({}) do |type, map|
-          list = @animations[type]
-          map[type] = _evaluate_animation_list(type, t, list)
-        end
-      end
-
-      def _evaluate_animation_list(type, t, list)
-        list.reduce(@attribute_defs[type].initial) do |memo, animation|
-          # animations are always specified relative to the "enter" time of
-          # element they are attached to.
-          relative_t = t - t1
-          if relative_t < animation.from
-            memo
-          else
-            result = animation[relative_t]
-            @attribute_defs[type][memo, result]
-          end
-        end
       end
 
       def _absolute(t)

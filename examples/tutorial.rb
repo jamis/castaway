@@ -69,15 +69,15 @@ scene 'Castaway Script' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       in(:dissolve, speed: 0.25).
-      path(ruby_program[0]       => ruby_program[1],
-           sound_clips[0] - 0.25 => ruby_program[1],
-           sound_clips[0]        => sound_clips[1],
-           soundtrack[0] - 0.25  => sound_clips[1],
-           soundtrack[0]         => soundtrack[1],
-           scenes[0] - 0.25      => soundtrack[1],
-           scenes[0]             => scenes[1],
-           elements[0] - 0.25    => scenes[1],
-           elements[0]           => elements[1])
+      at(ruby_program[0]       => ruby_program[1],
+         sound_clips[0] - 0.25 => ruby_program[1],
+         sound_clips[0]        => sound_clips[1],
+         soundtrack[0] - 0.25  => sound_clips[1],
+         soundtrack[0]         => soundtrack[1],
+         scenes[0] - 0.25      => soundtrack[1],
+         scenes[0]             => scenes[1],
+         elements[0] - 0.25    => scenes[1],
+         elements[0]           => elements[1])
   end
 end
 
@@ -146,11 +146,11 @@ scene 'Dissolve In' do
       exit(voice_in + arrow_finish - start).
       in(:dissolve, speed: 0.25).
       out(:dissolve, speed: 0.25).
-      path(first_elem[0]         => first_elem[1],
-           enter_cmd[0] - 0.25   => first_elem[1],
-           enter_cmd[0]          => enter_cmd[1],
-           dissolve_in[0] - 0.25 => enter_cmd[1],
-           dissolve_in[0]        => dissolve_in[1])
+      at(first_elem[0]         => first_elem[1],
+         enter_cmd[0] - 0.25   => first_elem[1],
+         enter_cmd[0]          => enter_cmd[1],
+         dissolve_in[0] - 0.25 => enter_cmd[1],
+         dissolve_in[0]        => dissolve_in[1])
   end
 end
 
@@ -192,7 +192,7 @@ scene 'Prepare Arrow' do
             gravity(:center).enter(0.5).in(:dissolve, speed: 0.5)
 
     rel = relative_to_image('arrow.png')
-    pos = arrow.position + Point.new(152, 12)
+    pos = arrow.position[0] + Point.new(152, 12)
 
     pointer.
       rotate(150).
@@ -230,9 +230,9 @@ scene 'Declare Pointer' do
       exit(voice_in + arrow_end - start).
       in(:dissolve, speed: 0.25).
       out(:dissolve, speed: 0.25).
-      path(hotspot[0]        => hotspot[1],
-           relsize[0] - 0.25 => hotspot[1],
-           relsize[0]        => relsize[1])
+      at(hotspot[0]        => hotspot[1],
+         relsize[0] - 0.25 => hotspot[1],
+         relsize[0]        => relsize[1])
   end
 end
 
@@ -257,11 +257,11 @@ scene 'Add Pointer' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       in(:dissolve, speed: 0.25).
-      path(addptr[0]           => addptr[1],
-           ptrwhere[0] - 0.25  => addptr[1],
-           ptrwhere[0]         => ptrwhere[1],
-           ptrrotate[0] - 0.25 => ptrwhere[1],
-           ptrrotate[0]        => ptrrotate[1])
+      at(addptr[0]           => addptr[1],
+         ptrwhere[0] - 0.25  => addptr[1],
+         ptrwhere[0]         => ptrwhere[1],
+         ptrrotate[0] - 0.25 => ptrwhere[1],
+         ptrrotate[0]        => ptrrotate[1])
   end
 end
 
@@ -299,13 +299,13 @@ scene 'Move Pointer' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       in(:dissolve, speed: 0.25).
-      path(nw[0]           => nw[1],
-           ne[0] - segment => nw[1],
-           ne[0]           => ne[1],
-           se[0] - segment => ne[1],
-           se[0]           => se[1],
-           sw[0] - segment => se[1],
-           sw[0]           => sw[1])
+      at(nw[0]           => nw[1],
+         ne[0] - segment => nw[1],
+         ne[0]           => ne[1],
+         se[0] - segment => ne[1],
+         se[0]           => se[1],
+         sw[0] - segment => se[1],
+         sw[0]           => sw[1])
   end
 end
 
@@ -406,15 +406,15 @@ scene 'Sound - Modify' do
       exit(voice_in + arrow_end - start).
       in(:dissolve, speed: 0.25).
       out(:dissolve, speed: 0.25).
-      path(fadein1[0]         => fadein1[1],
-           fadeout1[0] - 0.25 => fadein1[1],
-           fadeout1[0]        => fadeout1[1],
-           fadein2[0] - 0.25  => fadeout1[1],
-           fadein2[0]         => fadein2[1],
-           fadeout2[0] - 0.25 => fadein2[1],
-           fadeout2[0]        => fadeout2[1],
-           padmid[0] - 0.25   => fadeout2[1],
-           padmid[0]          => padmid[1])
+      at(fadein1[0]         => fadein1[1],
+         fadeout1[0] - 0.25 => fadein1[1],
+         fadeout1[0]        => fadeout1[1],
+         fadein2[0] - 0.25  => fadeout1[1],
+         fadein2[0]         => fadein2[1],
+         fadeout2[0] - 0.25 => fadein2[1],
+         fadeout2[0]        => fadeout2[1],
+         padmid[0] - 0.25   => fadeout2[1],
+         padmid[0]          => padmid[1])
   end
 end
 

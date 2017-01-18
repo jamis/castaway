@@ -11,15 +11,11 @@ module Castaway
     end
 
     register :dissolve_in do |element, options|
-      element.animate(:alpha,
-                      from: 0.0, to: options[:speed],
-                      initial: 0.0, final: 1.0)
+      element.alpha(0 => 0, options[:speed] => 1)
     end
 
     register :dissolve_out do |element, options|
-      element.animate(:alpha,
-                      from: element.tail(options[:speed]), to: element.tail,
-                      initial: 1.0, final: 0.0)
+      element.alpha(1 => element.tail(options[:speed]), 0 => element.tail)
     end
 
     register :pan do |element, options|
@@ -52,8 +48,7 @@ module Castaway
       p0 = Castaway::Point.new(0, 0)
       p1 = Castaway::Point.new(dx, dy)
 
-      element.animate(:position, type: type, from: from, to: to,
-                                 initial: p0, final: p1)
+      element.at(from => p0, to => p1)
     end
   end
 end

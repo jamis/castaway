@@ -4,19 +4,18 @@ module Castaway
   module Element
 
     class Text < Element::Base
+      declarative_accessor :font_size, :kerning
+
       def initialize(production, scene, string)
         super(production, scene)
 
         @string = string
         @gravity = 'Center'
         @font = 'TimesNewRoman'
-        @font_size = 24
+        @font_size = Castaway::Delta[24]
         @background = 'transparent'
-        @kerning = 0
+        @kerning = Castaway::Delta[0]
         @fill = @stroke = nil
-
-        attribute(:font_size, 1) { |memo, value| memo * value }
-        attribute(:kerning, -> { @kerning }) { |memo, value| memo + value }
       end
 
       def fill(color)
@@ -34,11 +33,6 @@ module Castaway
         self
       end
 
-      def kerning(kerning)
-        @kerning = kerning
-        self
-      end
-
       def gravity(gravity)
         @gravity = gravity
         self
@@ -49,23 +43,19 @@ module Castaway
         self
       end
 
-      def font_size(size)
-        @font_size = size
-        self
-      end
-
+      # `t` is the time value relative to the entrance of this element
       def _prepare_canvas(t, canvas)
         canvas.xc @background
 
-        font_size = @font_size * attributes[:font_size]
-        kerning = attributes[:kerning]
+        font_size = self.font_size[t]
+        kerning = self.kerning[t]
 
         canvas.pointsize font_size
 
         commands = [ "gravity #{@gravity}", "font '#{@font}'" ]
         commands << "fill #{@fill}" if @fill
         commands << "stroke #{@stroke}" if @stroke
-        commands << format('kerning %.1f', kerning) if kerning
+        commands << format('kerning %.1f', kerning) if kerning != 0
         commands << "text 0,0 '#{@string}'"
 
         canvas.draw commands.join(' ')

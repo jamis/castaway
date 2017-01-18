@@ -6,6 +6,16 @@ module Castaway
   module Element
 
     class Pointer < Element::Still
+      class HotspotDelta
+        def initialize(pointer)
+          @pointer = pointer
+        end
+
+        def [](t)
+          @pointer.raw_position[t] - @pointer.hotspot_at(t)
+        end
+      end
+
       def initialize(production, scene, id)
         path, options = production.pointers.fetch(id)
         super(production, scene, path)
@@ -19,15 +29,17 @@ module Castaway
         scale(sx)
       end
 
-      def hotspot
+      def hotspot_at(t)
         @box.
-          scale(@scale || 0).
-          rotate(@angle || 0).
+          scale(scale[t]).
+          rotate(rotate[t]).
           bounds[:hotspot]
       end
 
+      alias raw_position position
+
       def position
-        @position - hotspot
+        HotspotDelta.new(self)
       end
     end
 

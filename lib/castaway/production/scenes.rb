@@ -6,7 +6,7 @@ module Castaway
 
       # Returns the duration of the production, in seconds.
       def duration
-        @scenes.last.finish
+        @scenes.any? ? @scenes.last.finish : 0
       end
 
       # Returns the first scene with the given title.
