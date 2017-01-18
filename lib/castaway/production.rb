@@ -24,6 +24,8 @@ module Castaway
       @deliverable = options[:deliverable]
       @fps = options[:fps] || 30
 
+      super()
+
       _build_scenes
     end
 
@@ -80,7 +82,8 @@ module Castaway
       ffmpeg = Chaussettes::Tool.new('ffmpeg')
       ffmpeg << '-thread_queue_size' << 8192
       ffmpeg << '-r' << fps << '-s' << resolution.to_resolution
-      ffmpeg << '-i' << _template('.png') << '-i' << soundtrack
+      ffmpeg << '-i' << _template('.png')
+      ffmpeg << '-i' << soundtrack if soundtrack
       ffmpeg << '-vcodec' << 'libx264'
       ffmpeg << '-preset' << 'veryslow' << '-tune' << 'stillimage'
       ffmpeg << '-crf' << 23 << '-pix_fmt' << 'yuv420p' << '-acodec' << 'aac'

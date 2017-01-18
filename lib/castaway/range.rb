@@ -38,6 +38,10 @@ module Castaway
       start_frame > 0 || end_time < @production.duration
     end
 
+    def duration
+      (end_frame - start_frame) / @production.fps.to_f
+    end
+
     def start_time=(t)
       @start_frame = (_parse_time(t) * @production.fps).floor
     end

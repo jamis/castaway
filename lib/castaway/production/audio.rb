@@ -4,6 +4,13 @@ module Castaway
   class Production
     module Audio
 
+      attr_reader :embedded_clips
+
+      def initialize
+        @embedded_clips = []
+        super
+      end
+
       # Returns the filename associated with the soundclip with the given id.
       # If the soundclip was declared with a block, the block will be evaluated
       # with a new `Chaussettes::Clip` instance, and the a temporary filename
@@ -133,29 +140,73 @@ module Castaway
 
       def _produce_soundtrack(range)
         block = self.class.soundtrack
-        return nil unless block
-
-        _next_filename('.aiff').tap do |filename|
-          real_filename = filename
-          filename = range.truncated? ? _next_filename('.aiff') : real_filename
-
-          Chaussettes::Clip.new do |clip|
-            instance_exec(clip, &block)
-            clip.out(filename)
-            clip.run
-          end
-
-          if range.truncated?
+        soundtrack = if block
+          _next_filename('.aiff').tap do |output|
             Chaussettes::Clip.new do |clip|
-              clip.in(filename)
-              clip.chain.trim range.start_time, range.end_time - range.start_time
-              clip.out(real_filename)
+              instance_exec(clip, &block)
+              clip.out(output)
               clip.run
             end
           end
         end
+
+        soundtrack = _mix_embedded_audio(soundtrack)
+        _clip_audio(range, soundtrack)
       end
 
+      def _mix_embedded_audio(soundtrack)
+        return soundtrack unless embedded_clips.any?
+
+        _next_filename('.aiff').tap do |output|
+          Chaussettes::Clip.new do |clip|
+            clip.in(soundtrack) if soundtrack
+
+            embedded_clips.each do |embed|
+              clip.in(_build_embedded_clip(embed))
+            end
+
+            count = embedded_clips.count
+            count += 1 if soundtrack
+            clip.mix if count > 1
+
+            clip.out(output)
+            clip.run
+          end
+        end
+      end
+
+      def _build_embedded_clip(info)
+        _next_filename('.aiff').tap do |output|
+          Chaussettes::Clip.new do |clip|
+            clip.in(info.source)
+
+            clip.chain.tap do |chain|
+              chain.trim(0, info.duration) if info.duration
+              chain.pad(info.start) if info.start > 0
+            end
+
+            clip.out(output)
+            clip.run
+          end
+        end
+      end
+
+      def _clip_audio(range, soundtrack)
+        return nil unless soundtrack
+
+        info = Chaussettes::Info.new(soundtrack)
+        return soundtrack if range.duration >= info.duration
+
+        clipped = _next_filename('.aiff')
+        Chaussettes::Clip.new do |clip|
+          clip.in(soundtrack)
+          clip.chain.trim range.start_time, range.end_time - range.start_time
+          clip.out(clipped)
+          clip.run
+        end
+
+        clipped
+      end
     end
   end
 end

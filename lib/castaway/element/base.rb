@@ -1,5 +1,6 @@
 require 'castaway/animation'
 require 'castaway/effect'
+require 'castaway/embedded_audio'
 require 'castaway/point'
 
 module Castaway
@@ -199,6 +200,12 @@ module Castaway
           current = points[time]
           prior_t = time
         end
+      end
+
+      def play(sound, after: 0, duration: nil)
+        audio = Castaway::EmbeddedAudio.new(sound, self, after, duration)
+        production.embedded_clips << audio
+        self
       end
 
       def tail(value = 0.0)
