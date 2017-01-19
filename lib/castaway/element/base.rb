@@ -9,13 +9,20 @@ module Castaway
 
     class Base
       def self.declarative_accessor(*names)
+        options = names.last.is_a?(Hash) ? names.pop : {}
+        arg = if options[:converter]
+                "#{options[:converter]}(arg)"
+              else
+                "arg"
+              end
+
         names.each do |name|
           class_eval <<-RUBY, __FILE__, __LINE__+1
             def #{name}(arg = nil)
               if arg.nil?
                 @#{name}
               else
-                @#{name} = _argument_to_delta(arg)
+                @#{name} = _argument_to_delta(#{arg})
                 self
               end
             end
