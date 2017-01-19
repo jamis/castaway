@@ -144,8 +144,7 @@ scene 'Dissolve In' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       exit(voice_in + arrow_finish - start).
-      in(:dissolve, speed: 0.25).
-      out(:dissolve, speed: 0.25).
+      effect(:dissolve_inout, speed: 0.25).
       at(first_elem[0]         => first_elem[1],
          enter_cmd[0] - 0.25   => first_elem[1],
          enter_cmd[0]          => enter_cmd[1],
@@ -162,6 +161,10 @@ scene 'Pointer' do
     an arrow at it. This is easy to do in Castaway, too.
   SCRIPT
 
+  # time relative to beginning of voice track
+  arrow_start = time('0:54.18')
+  arrow_end   = time('0:55.26')
+
   plan do
     still('pointer-slide.png').enter(-0.5).in(:dissolve, speed: 0.5)
 
@@ -169,10 +172,9 @@ scene 'Pointer' do
       at(relative_to_image('pointer-slide.png').position(923, 337)).
       rotate(145).
       scale(0.75).
-      enter(voice_in + time('0:54.18') - start).
-      exit(voice_in + time('0:55.26') - start).
-      in(:dissolve, speed: 0.25).
-      out(:dissolve, speed: 0.25)
+      enter(voice_in + arrow_start - start).
+      exit(voice_in + arrow_end - start).
+      effect(:dissolve_inout, speed: 0.25)
   end
 end
 
@@ -185,22 +187,21 @@ scene 'Prepare Arrow' do
   SCRIPT
 
   hot_spot = voice_in + time('1:07.75') - start
+  hot_spot_life = 2
 
   plan do
     matte(:white).enter(-0.5).in(:dissolve, speed: 0.5)
     arrow = sprite('arrow.png').
             gravity(:center).enter(0.5).in(:dissolve, speed: 0.5)
 
-    rel = relative_to_image('arrow.png')
     pos = arrow.position[0] + Point.new(152, 12)
 
     pointer.
       rotate(150).
       at(pos).
       enter(hot_spot).
-      exit(hot_spot + 2).
-      in(:dissolve, speed: 0.25).
-      out(:dissolve, speed: 0.25)
+      exit(hot_spot + hot_spot_life).
+      effect(:dissolve_inout, speed: 0.25)
   end
 end
 
@@ -228,8 +229,7 @@ scene 'Declare Pointer' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       exit(voice_in + arrow_end - start).
-      in(:dissolve, speed: 0.25).
-      out(:dissolve, speed: 0.25).
+      effect(:dissolve_inout, speed: 0.25).
       at(hotspot[0]        => hotspot[1],
          relsize[0] - 0.25 => hotspot[1],
          relsize[0]        => relsize[1])
@@ -328,7 +328,7 @@ scene 'Path Command' do
     pointer.
       rotate(150).
       enter(voice_in + arrow_start - start).
-      at(relative_to_image('path-command.png').position(1120, 390)).
+      at(relative_to_image('path-command.png').position(1160, 390)).
       in(:dissolve, speed: 0.25)
   end
 end
@@ -404,8 +404,7 @@ scene 'Sound - Modify' do
       rotate(150).
       enter(voice_in + arrow_start - start).
       exit(voice_in + arrow_end - start).
-      in(:dissolve, speed: 0.25).
-      out(:dissolve, speed: 0.25).
+      effect(:dissolve_inout, speed: 0.25).
       at(fadein1[0]         => fadein1[1],
          fadeout1[0] - 0.25 => fadein1[1],
          fadeout1[0]        => fadeout1[1],

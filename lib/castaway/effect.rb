@@ -18,6 +18,15 @@ module Castaway
       element.alpha(element.tail(options[:speed]) => 1.0, element.tail => 0.0)
     end
 
+    register :dissolve_inout do |element, options|
+      speed = options[:speed] || 1.0
+      element.alpha(
+        0                   => 0.0,
+        speed               => 1.0,
+        element.tail(speed) => 1.0,
+        element.tail        => 0.0)
+    end
+
     register :pan do |element, options|
       dx = case options[:horizontal]
            when nil then 0

@@ -64,8 +64,15 @@ module Castaway
 
     def _legs
       @_legs ||= begin
-        sorted_t = @definition.keys.map { |t| _reify(t) }.sort
-        sorted_v = sorted_t.map { |t| _reify(@definition[t]) }
+        reified_t = @definition.keys.
+                    map { |t| [t, _reify(t)] }.
+                    sort_by(&:last)
+        original_t = reified_t.map(&:first)
+        sorted_t = reified_t.map(&:last)
+
+        # we have to key off of the original (unreified) t,
+        # because that's what the original definition has uses.
+        sorted_v = original_t.map { |t| _reify(@definition[t]) }
 
         if sorted_t.length == 1
           [ ConstantLeg.new(sorted_v.first) ]
