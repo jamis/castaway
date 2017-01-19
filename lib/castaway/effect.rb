@@ -11,11 +11,11 @@ module Castaway
     end
 
     register :dissolve_in do |element, options|
-      element.alpha(0 => 0, options[:speed] => 1)
+      element.alpha(0 => 0.0, options[:speed] => 1.0)
     end
 
     register :dissolve_out do |element, options|
-      element.alpha(1 => element.tail(options[:speed]), 0 => element.tail)
+      element.alpha(element.tail(options[:speed]) => 1.0, element.tail => 0.0)
     end
 
     register :pan do |element, options|

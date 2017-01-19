@@ -10,11 +10,11 @@ module Castaway
     class Base
       def self.declarative_accessor(*names)
         options = names.last.is_a?(Hash) ? names.pop : {}
-        arg = if options[:converter]
-                "#{options[:converter]}(arg)"
-              else
-                "arg"
-              end
+        convert = if options[:converter]
+                    " { |a| #{options[:converter]}(a) }"
+                  else
+                    ''
+                  end
 
         names.each do |name|
           class_eval <<-RUBY, __FILE__, __LINE__+1
@@ -22,7 +22,7 @@ module Castaway
               if arg.nil?
                 @#{name}
               else
-                @#{name} = _argument_to_delta(#{arg})
+                @#{name} = _argument_to_delta(arg)#{convert}
                 self
               end
             end
@@ -114,10 +114,12 @@ module Castaway
 
       def _argument_to_delta(arg)
         if arg.is_a?(Hash)
+          arg = Hash[arg.map { |k, v| [k, yield(v)] }] if block_given?
           Castaway::Delta.new(arg)
         elsif arg.is_a?(Castaway::Delta)
           arg
         else
+          arg = yield(arg) if block_given?
           Castaway::Delta[arg]
         end
       end
