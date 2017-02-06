@@ -123,7 +123,7 @@ module Castaway
 
     def update_from_next(neighbor)
       @finish = neighbor.nil? ? @start : neighbor.start
-      @duration = @finish - @start
+      @duration = @finish - @start if @finish && @start
     end
 
     def _still(filename, full)

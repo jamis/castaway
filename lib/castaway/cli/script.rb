@@ -16,7 +16,7 @@ module Castaway
           production = Castaway::Production.from_script(args.first)
 
           production.new.scenes.each.with_index do |scene, idx|
-            mark = scene.start || "##{idx}"
+            mark = scene.start || "##{idx+1}"
             puts "[#{mark}] #{scene.title}"
             puts scene.script if scene.script
             puts

@@ -27,7 +27,7 @@ module Castaway
           Castaway::Scene.new(name, self).configure(&config)
         end
 
-        @scenes = @scenes.sort_by(&:start)
+        @scenes = @scenes.sort_by(&:start) if @scenes.any?(&:start)
 
         @scenes.each.with_index do |scene, index|
           scene.update_from_next(@scenes[index + 1])
