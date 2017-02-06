@@ -19,6 +19,14 @@ module Castaway
 
       desc Castaway::CLI::Version.description
       command(:version) { |c| Castaway::CLI::Version.define(c) }
+
+      on_error do |exception|
+        $stderr.puts "exception: #{exception.class} (#{exception.message})"
+        exception.backtrace.each do |item|
+          $stderr.puts "- #{item}"
+        end
+        false
+      end
     end
   end
 end
